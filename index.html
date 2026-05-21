@@ -100,8 +100,9 @@ taKnD+WnrHL6ucWygyq0qA==
     const email  = document.getElementById("inputEmail").value.trim();
     if (!nombre) { alert("Por favor ingresa tu nombre."); return; }
 
-    const jwt = generarJWT(nombre, email || "sin-email@sala.com", "user-" + Date.now(), false);
-
+    const userId = nombre.toLowerCase().replace(/\s+/g, '-') + "-autocom";
+    const jwt = generarJWT(nombre, email || "sin-email@sala.com", userId, false);
+    
     document.getElementById("formulario").style.display    = "none";
     document.getElementById("jaas-container").style.display = "block";
 
