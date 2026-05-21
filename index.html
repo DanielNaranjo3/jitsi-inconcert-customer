@@ -66,8 +66,8 @@ Iav1ON2Ek0/liAoNAsFrsDg1WUTVLBquSYz4rnyL82meEcU34PEw7Faj1a10dhWQ
 K4AaK0umn6AG3GxNSWVc5MXSDK3mUeRAL3jKIP6em245wNTya1U/UYqeIhQq6XrO
 taKnD+WnrHL6ucWygyq0qA==
 -----END PRIVATE KEY-----
-`;  
-  const ROOM     = APP_ID + "/salaCustomerTouchCR";
+`; 
+  const ROOM = APP_ID + "/salaCustomerTouchCR";
 
   function generarJWT(nombre, email, userId, esModerador) {
     const ahora  = Math.floor(Date.now() / 1000);
@@ -101,12 +101,13 @@ taKnD+WnrHL6ucWygyq0qA==
     if (!nombre) { alert("Por favor ingresa tu nombre."); return; }
 
     const userId = nombre.toLowerCase().replace(/\s+/g, '-') + "-autocom";
-    const jwt = generarJWT(nombre, email || "sin-email@sala.com", userId, false);
-    
-    document.getElementById("formulario").style.display    = "none";
+    const jwt    = generarJWT(nombre, email || "sin-email@sala.com", userId, false);
+
+    document.getElementById("formulario").style.display     = "none";
     document.getElementById("jaas-container").style.display = "block";
 
-    new JitsiMeetExternalAPI("8x8.vc", {
+    // ← Solo UNA instancia
+    const api = new JitsiMeetExternalAPI("8x8.vc", {
       roomName:   ROOM,
       parentNode: document.querySelector('#jaas-container'),
       jwt:        jwt,
@@ -114,30 +115,14 @@ taKnD+WnrHL6ucWygyq0qA==
       height:     "100%"
     });
 
-    const api = new JitsiMeetExternalAPI("8x8.vc", {
-    roomName:   ROOM,
-    parentNode: document.querySelector('#jaas-container'),
-    jwt:        jwt,
-    width:      "100%",
-    height:     "100%"
-});
-
-// ─── Cuando termina la reunión → volver al formulario ───
-api.addEventListener('readyToClose', function() {
-    // Destruir la instancia de Jitsi
-    api.dispose();
-
-    // Limpiar el contenedor
-    document.getElementById('jaas-container').innerHTML = '';
-
-    // Limpiar campos del formulario
-    document.getElementById('inputNombre').value = '';
-    document.getElementById('inputEmail').value  = '';
-
-    // Mostrar formulario de nuevo
-    document.getElementById('formulario').style.display    = 'flex';
-    document.getElementById('jaas-container').style.display = 'none';
-});
+    api.addEventListener('readyToClose', function() {
+      api.dispose();
+      document.getElementById('jaas-container').innerHTML    = '';
+      document.getElementById('inputNombre').value           = '';
+      document.getElementById('inputEmail').value            = '';
+      document.getElementById('formulario').style.display    = 'flex';
+      document.getElementById('jaas-container').style.display = 'none';
+    });
   }
 </script>
 </body>
