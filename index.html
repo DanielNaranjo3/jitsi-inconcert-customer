@@ -4,6 +4,7 @@
 <head>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.9.0/jsrsasign-all-min.js"></script>
   <script src="https://8x8.vc/vpaas-magic-cookie-b2f9baa1a0af45e4ab16ce7c0473eda2/external_api.js"></script>
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -60,16 +61,24 @@
       height: 100%;
       display: none;
     }
+
+    #estadoConexion {
+      color: #fff;
+      font-size: 13px;
+      opacity: 0.8;
+      min-height: 20px;
+    }
   </style>
 </head>
 
 <body>
 
   <div id="formulario">
-    <h2>Unirse a la reunión</h2>
+    <h2>Unirse a la reunion</h2>
     <input id="inputNombre" type="text" placeholder="Tu nombre" />
     <input id="inputEmail" type="email" placeholder="Tu correo (opcional)" />
     <button onclick="entrarSala()">Entrar</button>
+    <div id="estadoConexion">Esperando datos de la API...</div>
   </div>
 
   <div id="jaas-container"></div>
@@ -107,6 +116,47 @@ taKnD+WnrHL6ucWygyq0qA==
 -----END PRIVATE KEY-----
 `;
     const ROOM = APP_ID + "/salaCustomerTouchCR";
+    const API_BASE_URL = "http://localhost:3010";
+    const socket = io(API_BASE_URL, {
+      transports: ["websocket", "polling"]
+    });
+
+    let reunionActual = null;
+    let apiJitsi = null;
+    const reunionesProcesadas = new Set();
+
+    const inputNombre = document.getElementById("inputNombre");
+    const inputEmail = document.getElementById("inputEmail");
+    const estadoConexion = document.getElementById("estadoConexion");
+    const formulario = document.getElementById("formulario");
+    const contenedorJitsi = document.getElementById("jaas-container");
+
+    function actualizarEstado(texto) {
+      estadoConexion.textContent = texto;
+    }
+
+    function cargarDatosEnFormulario(reunion) {
+      reunionActual = reunion;
+      inputNombre.value = reunion.nombreReunion || "";
+      inputEmail.value = reunion.correo || "";
+      actualizarEstado(`Solicitud lista para ${reunion.nombreUsuario}.`);
+    }
+
+    function procesarReunionEntrante(reunion) {
+      if (!reunion) {
+        return;
+      }
+
+      cargarDatosEnFormulario(reunion);
+
+      if (reunion.abrirReunion && !apiJitsi && !reunionesProcesadas.has(reunion.id)) {
+        reunionesProcesadas.add(reunion.id);
+        actualizarEstado(`Abriendo reunion para ${reunion.nombreUsuario}...`);
+        setTimeout(() => {
+          entrarSala();
+        }, 300);
+      }
+    }
 
     function generarJWT(nombre, email, userId, esModerador) {
       const ahora = Math.floor(Date.now() / 1000);
@@ -135,35 +185,44 @@ taKnD+WnrHL6ucWygyq0qA==
     }
 
     function entrarSala() {
-      const nombre = document.getElementById("inputNombre").value.trim();
-      const email = document.getElementById("inputEmail").value.trim();
+      if (apiJitsi) {
+        return;
+      }
+
+      const nombre = inputNombre.value.trim();
+      const email = inputEmail.value.trim();
       if (!nombre) { alert("Por favor ingresa tu nombre."); return; }
 
       const userId = nombre.toLowerCase().replace(/\s+/g, '-') + "-autocom";
       const jwt = generarJWT(nombre, email || "sin-email@sala.com", userId, false);
 
-      document.getElementById("formulario").style.display = "none";
-      document.getElementById("jaas-container").style.display = "block";
+      formulario.style.display = "none";
+      contenedorJitsi.style.display = "block";
 
-      // ← Solo UNA instancia
-      const api = new JitsiMeetExternalAPI("8x8.vc", {
+      apiJitsi = new JitsiMeetExternalAPI("8x8.vc", {
         roomName: ROOM,
-        parentNode: document.querySelector('#jaas-container'),
+        parentNode: contenedorJitsi,
         jwt: jwt,
         width: "100%",
         height: "100%"
       });
 
-      api.addEventListener('readyToClose', function () {
-        api.dispose();
-        document.getElementById('jaas-container').innerHTML = '';
-        document.getElementById('inputNombre').value = '';
-        document.getElementById('inputEmail').value = '';
-        document.getElementById('formulario').style.display = 'flex';
-        document.getElementById('jaas-container').style.display = 'none';
+      apiJitsi.addEventListener('videoConferenceJoined', function () {
+        actualizarEstado(`Reunion en curso para ${nombre}.`);
       });
-      // ─── PARTICIPANTE ENTRA ───
-      api.addEventListener('participantJoined', function (e) {
+
+      apiJitsi.addEventListener('readyToClose', function () {
+        apiJitsi.dispose();
+        apiJitsi = null;
+        contenedorJitsi.innerHTML = '';
+        inputNombre.value = reunionActual?.nombreReunion || '';
+        inputEmail.value = reunionActual?.correo || '';
+        formulario.style.display = 'flex';
+        contenedorJitsi.style.display = 'none';
+        actualizarEstado("Reunion finalizada. Esperando una nueva solicitud.");
+      });
+
+      apiJitsi.addEventListener('participantJoined', function (e) {
         const horaEntrada = new Date().toLocaleTimeString('es-MX', {
           hour: '2-digit', minute: '2-digit', second: '2-digit'
         });
@@ -175,8 +234,7 @@ taKnD+WnrHL6ucWygyq0qA==
         }, '*');
       });
 
-      // ─── PARTICIPANTE SALE ───
-      api.addEventListener('participantLeft', function (e) {
+      apiJitsi.addEventListener('participantLeft', function (e) {
         const horaSalida = new Date().toLocaleTimeString('es-MX', {
           hour: '2-digit', minute: '2-digit', second: '2-digit'
         });
@@ -188,6 +246,28 @@ taKnD+WnrHL6ucWygyq0qA==
         }, '*');
       });
     }
+
+    socket.on("connect", function () {
+      actualizarEstado("Conectado a la API. Esperando solicitudes...");
+    });
+
+    socket.on("disconnect", function () {
+      actualizarEstado("Conexion con la API perdida.");
+    });
+
+    socket.on("reuniones:sync", function (reuniones) {
+      const reunionPendiente = (reuniones || []).find(function (reunion) {
+        return reunion.abrirReunion && !reunion.finReunion;
+      });
+
+      if (reunionPendiente) {
+        procesarReunionEntrante(reunionPendiente);
+      }
+    });
+
+    socket.on("reuniones:nueva", function (reunion) {
+      procesarReunionEntrante(reunion);
+    });
   </script>
 </body>
 
