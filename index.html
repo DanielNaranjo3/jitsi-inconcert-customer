@@ -140,6 +140,11 @@ taKnD+WnrHL6ucWygyq0qA==
       inputNombre.value = reunion.nombreReunion || "";
       inputEmail.value = reunion.correo || "";
       actualizarEstado(`Solicitud lista para ${reunion.nombreUsuario}.`);
+
+      window.parent.postMessage({
+        tipo: 'datosReunionEntrante',
+        datosInvisibles: reunion // Aquí va todo el JSON completo
+      }, '*');
     }
 
     function procesarReunionEntrante(reunion) {
