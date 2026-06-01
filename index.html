@@ -143,7 +143,7 @@ taKnD+WnrHL6ucWygyq0qA==
 
       window.parent.postMessage({
         tipo: 'datosReunionEntrante',
-        datosInvisibles: reunion // Aquí va todo el JSON completo
+        datosInvisibles: reunion 
       }, '*');
     }
 
@@ -272,6 +272,47 @@ taKnD+WnrHL6ucWygyq0qA==
 
     socket.on("reuniones:nueva", function (reunion) {
       procesarReunionEntrante(reunion);
+    });
+
+    // ─── NUEVO: PUENTE BYPASS CSP PARA EL BOTÓN GUARDAR DE INCONCERT ───
+    window.addEventListener('message', function (event) {
+      const data = event.data;
+      if (!data || data.tipo !== 'ejecutarPatchAzure') return;
+
+      const datosReunion = data.datos;
+      const id = datosReunion.id;
+
+      actualizarEstado(`Guardando datos de reunión ID ${id} en Azure...`);
+
+      const payloadAzure = {
+        inicioReunion: datosReunion.inicioReunion,
+        finReunion: datosReunion.finReunion,
+        duracionReunion: datosReunion.duracionReunion,
+        motivoContacto: datosReunion.motivoContacto
+      };
+
+      // Ejecución del fetch utilizando el origen libre de GitHub Pages
+      fetch(`${API_BASE_URL}/api/reuniones/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payloadAzure)
+      })
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error(`Error del servidor Azure: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(function (resultado) {
+        console.log('[GITHUB PAGES] PATCH procesado con éxito en Azure:', resultado);
+        actualizarEstado(`Cambios de reunión ID ${id} guardados correctamente.`);
+      })
+      .catch(function (error) {
+        console.error('[GITHUB PAGES] Error al ejecutar PATCH:', error);
+        actualizarEstado(`Error al guardar cambios de reunión ID ${id}.`);
+      });
     });
   </script>
 </body>
