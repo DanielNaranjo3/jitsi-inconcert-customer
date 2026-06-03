@@ -214,7 +214,7 @@ taKnD+WnrHL6ucWygyq0qA==
         configOverwrite: {
           prejoinPageEnabled: false,
           prejoinConfig: {
-            enabled: false //Formato nuevo requerido por Jitsi/8x8 actual
+            enabled: false 
           },
         startWithAudioMuted: true,
         startWithVideoMuted: true
@@ -226,14 +226,24 @@ taKnD+WnrHL6ucWygyq0qA==
       });
 
       apiJitsi.addEventListener('readyToClose', function () {
+        //Destruimos la llamada actual
         apiJitsi.dispose();
         apiJitsi = null;
+        //Esto evita que la pestaña vieja escuche llamadas nuevas
+        if (socket) {
+          socket.disconnect();
+        }
+        //Limpiamos la pantalla para que no quede nada colgado
         contenedorJitsi.innerHTML = '';
-        inputNombre.value = reunionActual?.nombreReunion || '';
-        inputEmail.value = reunionActual?.correo || '';
-        formulario.style.display = 'flex';
+        formulario.style.display = 'none'; // Ocultamos el formulario para que no intenten reentrar
         contenedorJitsi.style.display = 'none';
-        actualizarEstado("Reunion finalizada. Esperando una nueva solicitud.");
+        actualizarEstado("Videollamada finalizada. Cerrando pestaña...");
+        //Intentamos cerrar la pestaña automáticamente
+        window.close();
+        //Si el navegador bloquea el cierre, le avisamos al agente
+        setTimeout(() => {
+          actualizarEstado("Videollamada finalizada. Ya puedes cerrar esta pestaña manualmente.");
+        }, 1000);
       });
 
       apiJitsi.addEventListener('participantJoined', function (e) {
