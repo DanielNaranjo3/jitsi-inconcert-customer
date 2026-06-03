@@ -209,7 +209,11 @@ taKnD+WnrHL6ucWygyq0qA==
         parentNode: contenedorJitsi,
         jwt: jwt,
         width: "100%",
-        height: "100%"
+        height: "100%",
+        //Aquí se configura para saltar el "Join Meeting"
+        configOverwrite: {
+          prejoinPageEnabled: false
+        }
       });
 
       apiJitsi.addEventListener('videoConferenceJoined', function () {
