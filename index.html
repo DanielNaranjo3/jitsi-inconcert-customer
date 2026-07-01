@@ -34,7 +34,8 @@
       background: linear-gradient(135deg, var(--coop-fondo-de), var(--coop-fondo-a));
     }
 
-    #formulario {
+    #formulario,
+    #pantallaCierre {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -44,6 +45,10 @@
       padding: 24px;
     }
 
+    #pantallaCierre {
+      display: none;
+    }
+
     .coop-marca {
       display: flex;
       align-items: center;
@@ -51,10 +56,10 @@
       margin-bottom: 6px;
     }
 
-    .coop-marca svg {
-      width: 46px;
-      height: 46px;
-      filter: drop-shadow(0 2px 4px rgba(27, 95, 170, 0.25));
+    .coop-marca img {
+      height: 44px;
+      width: auto;
+      filter: drop-shadow(0 2px 4px rgba(27, 95, 170, 0.18));
     }
 
     .coop-marca span {
@@ -172,18 +177,7 @@
 
   <div id="formulario">
     <div class="coop-marca">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="coopGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="var(--coop-azul-claro)" />
-            <stop offset="100%" stop-color="var(--coop-verde)" />
-          </linearGradient>
-        </defs>
-        <polygon points="50,5 95,38 78,95 22,95 5,38" fill="url(#coopGrad)" />
-        <polygon points="13,65 87,65 78,95 22,95" fill="var(--coop-azul-oscuro)" />
-        <polygon points="32,50 68,50 68,80 50,95 32,80" fill="#ffffff" />
-      </svg>
-      <span>Coopealianza</span>
+      <img src="assets/logo-coopealianza.png" alt="Coopealianza" />
     </div>
 
     <div class="coop-card" id="tarjetaFormulario">
@@ -204,6 +198,17 @@
   </div>
 
   <div id="jaas-container"></div>
+
+  <div id="pantallaCierre">
+    <div class="coop-marca">
+      <img src="assets/logo-coopealianza.png" alt="Coopealianza" />
+    </div>
+
+    <div class="coop-card">
+      <h2 id="tituloCierre">Videollamada finalizada</h2>
+      <p class="subtitulo" id="mensajeCierre">Gracias por comunicarte con Coopealianza.<br>Ya puedes cerrar esta pestaña.</p>
+    </div>
+  </div>
 
   <script>
     const APP_ID = "vpaas-magic-cookie-b2f9baa1a0af45e4ab16ce7c0473eda2";
@@ -271,6 +276,7 @@ taKnD+WnrHL6ucWygyq0qA==
     const tarjetaFormulario = document.getElementById("tarjetaFormulario");
     const tarjetaEspera = document.getElementById("tarjetaEspera");
     const contenedorJitsi = document.getElementById("jaas-container");
+    const pantallaCierre = document.getElementById("pantallaCierre");
 
     if (ES_AGENTE) {
       // El agente nunca llena el formulario: sus datos son fijos y la
@@ -476,16 +482,15 @@ taKnD+WnrHL6ucWygyq0qA==
           actualizarEstado("Llamada finalizada. Esperando nueva solicitud...");
         } else {
           formulario.style.display = 'none'; // Ocultamos el formulario para que no intenten reentrar
-          actualizarEstado("Videollamada finalizada. Cerrando pestaña...");
           if (socket) {
             socket.disconnect();
           }
-          //Intentamos cerrar la pestaña automáticamente
+          // Mostramos la pantalla de cierre primero: window.close() casi
+          // nunca funciona en una pestaña que no fue abierta por script
+          // (que es el caso normal aquí), así que no podemos depender de
+          // que la pestaña se cierre sola para que el cliente vea algo.
+          pantallaCierre.style.display = 'flex';
           window.close();
-          //Si el navegador bloquea el cierre, le avisamos al cliente
-          setTimeout(() => {
-            actualizarEstado("Videollamada finalizada. Ya puedes cerrar esta pestaña manualmente.");
-          }, 1000);
         }
       });
 
