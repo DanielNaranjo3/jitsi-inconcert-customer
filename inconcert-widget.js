@@ -8,6 +8,8 @@
 // (no cuando el agente da clic en ENTRAR). Así el iframe queda escuchando
 // el socket del backend desde el inicio y puede avisar cuando llega un
 // cliente, sin importar si el agente aún no ha abierto la ventana.
+console.log('[InConcert] Widget de Coopealianza cargado —', new Date().toISOString());
+
 let contenedor = null;
 let iframeJitsi = null;
 let minimizado = false;
@@ -97,6 +99,9 @@ function crearContenedorJitsi() {
   // ─── IFRAME ───
   iframeJitsi = document.createElement('iframe');
   iframeJitsi.src = "https://danielnaranjo3.github.io/jitsi-inconcert-customer/"; // ← tu URL
+  iframeJitsi.onload = function () {
+    console.log('[InConcert] iframe de videollamada cargado y conectado —', new Date().toISOString());
+  };
   iframeJitsi.style.cssText = `
         position: absolute;
         top: 36px; left: 0;
