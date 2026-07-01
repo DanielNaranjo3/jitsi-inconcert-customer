@@ -140,6 +140,18 @@
       transform: scale(0.98);
     }
 
+    #formulario button.secundario {
+      background: none;
+      color: #8494a3;
+      border: 1.5px solid #dbe6ef;
+    }
+
+    #formulario button.secundario:hover {
+      color: #c0392b;
+      border-color: #c0392b;
+      filter: none;
+    }
+
     #jaas-container {
       height: 100%;
       display: none;
@@ -193,6 +205,7 @@
     <div class="coop-card" id="tarjetaEspera" style="display:none;">
       <div class="coop-spinner"></div>
       <p>Tu solicitud fue enviada.<br>Un asesor se conectará en breve...</p>
+      <button class="secundario" onclick="cancelarSolicitud()">Cancelar solicitud</button>
     </div>
 
     <div id="estadoConexion">Esperando datos de la API...</div>
@@ -388,6 +401,38 @@ taKnD+WnrHL6ucWygyq0qA==
       }
     }
 
+    // El cliente cancela mientras sigue en la sala de espera (antes de que
+    // el agente haya entrado). Marcamos la reunión como cerrada en el
+    // backend para que salga de la cola de espera del agente, y dejamos al
+    // cliente libre de enviar una nueva solicitud si lo desea.
+    async function cancelarSolicitud() {
+      const idACancelar = reunionActual && reunionActual.id;
+
+      if (idACancelar) {
+        try {
+          await fetch(`${API_BASE_URL}/api/reuniones/${idACancelar}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              finReunion: new Date().toISOString(),
+              duracionReunion: "Cancelada por el cliente"
+            })
+          });
+          console.log(`[Coopealianza][CLIENTE] Solicitud cancelada (id ${idACancelar})`);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      reunionActual = null;
+      inputNombre.value = "";
+      inputEmail.value = "";
+      inputMotivo.value = "";
+      tarjetaEspera.style.display = "none";
+      tarjetaFormulario.style.display = "flex";
+      actualizarEstado("Solicitud cancelada.");
+    }
+
     function generarJWT(nombre, email, userId, esModerador) {
       const ahora = Math.floor(Date.now() / 1000);
       const header = { alg: "RS256", typ: "JWT", kid: KEY_ID };
@@ -538,6 +583,27 @@ taKnD+WnrHL6ucWygyq0qA==
       console.log(`[Coopealianza][CLIENTE] El agente ya está dentro de la sala (id ${data.id}). Uniéndose ahora.`);
       actualizarEstado("El asesor se ha conectado. Uniéndote a la sala...");
       entrarSala();
+    });
+
+    // Si un cliente que estaba en la cola cancela (o su reunión se cierra
+    // por otro motivo) antes de que el agente entre, lo sacamos de la cola
+    // de espera para no ofrecerle al agente una sala vacía.
+    socket.on("reuniones:actualizada", function (reunion) {
+      if (!ES_AGENTE || !reunion || !reunion.finReunion) {
+        return;
+      }
+
+      const indice = colaEspera.findIndex(function (r) { return r.id === reunion.id; });
+      if (indice === -1) {
+        return;
+      }
+
+      colaEspera.splice(indice, 1);
+      console.log(`[Coopealianza][AGENTE] Solicitud cancelada/cerrada (id ${reunion.id}). Total en cola: ${colaEspera.length}`);
+      window.parent.postMessage({
+        tipo: 'colaActualizada',
+        totalEnCola: colaEspera.length
+      }, '*');
     });
 
     socket.on("reuniones:sync", function (reuniones) {
