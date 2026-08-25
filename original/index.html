@@ -118,7 +118,10 @@ taKnD+WnrHL6ucWygyq0qA==
     const ROOM = APP_ID + "/salaCustomerTouchCR";
     const API_BASE_URL = "https://webinar-customertouch.azurewebsites.net";
     const socket = io(API_BASE_URL, {
-      transports: ["websocket", "polling"]
+      // "polling" primero: funciona por HTTP normal sin depender de que
+      // Azure tenga habilitado "Web Sockets" en su configuración. Si el
+      // navegador logra conectar, intenta mejorar a websocket después.
+      transports: ["polling", "websocket"]
     });
 
     let reunionActual = null;
