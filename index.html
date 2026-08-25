@@ -194,7 +194,11 @@ taKnD+WnrHL6ucWygyq0qA==
         return;
       }
 
-      const nombre = inputNombre.value.trim();
+      // Si esta página corre embebida en un iframe (dentro de InConcert),
+      // es el agente: su nombre siempre es fijo, sin importar qué reunión
+      // haya llegado por socket.
+      const esAgente = window.self !== window.top;
+      const nombre = esAgente ? "Agente Inconcert" : inputNombre.value.trim();
       const email = inputEmail.value.trim();
       if (!nombre) { alert("Por favor ingresa tu nombre."); return; }
 
