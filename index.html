@@ -1,27 +1,11 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coopealianza · Videollamada</title>
-  <link rel="icon" type="image/png" href="assets/logo-icono-coopealianza.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.9.0/jsrsasign-all-min.js"></script>
   <script src="https://8x8.vc/vpaas-magic-cookie-b2f9baa1a0af45e4ab16ce7c0473eda2/external_api.js"></script>
   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
   <style>
-    :root {
-      --coop-azul-oscuro: #1B5FAA;
-      --coop-azul-claro: #4FB6E0;
-      --coop-verde: #7FC9AB;
-      --coop-texto: #1B2A3A;
-      --coop-fondo-de: #EAF4FB;
-      --coop-fondo-a: #F4FBF8;
-    }
-
     * {
       margin: 0;
       padding: 0;
@@ -31,157 +15,58 @@
     html,
     body {
       height: 100%;
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, var(--coop-fondo-de), var(--coop-fondo-a));
+      font-family: sans-serif;
+      background: #1a1a2e;
     }
 
-    #formulario,
-    #pantallaCierre {
+    #formulario {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100%;
-      gap: 18px;
-      padding: 24px;
-    }
-
-    #pantallaCierre {
-      display: none;
-    }
-
-    .coop-marca {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 6px;
-    }
-
-    .coop-marca img {
-      height: 44px;
-      width: auto;
-      filter: drop-shadow(0 2px 4px rgba(27, 95, 170, 0.18));
-    }
-
-    .coop-marca span {
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      font-size: 24px;
-      color: var(--coop-azul-oscuro);
-    }
-
-    .coop-card {
-      background: #fff;
-      border-radius: 20px;
-      padding: 32px 36px;
-      width: 340px;
-      max-width: 90vw;
-      box-shadow: 0 12px 32px rgba(27, 95, 170, 0.14);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       gap: 14px;
     }
 
     #formulario h2 {
-      font-family: 'Poppins', sans-serif;
-      color: var(--coop-texto);
-      font-size: 18px;
-      font-weight: 600;
-      text-align: center;
+      color: #fff;
+      margin-bottom: 8px;
     }
 
-    #formulario p.subtitulo {
-      color: #5b6b7a;
-      font-size: 13px;
-      text-align: center;
-      margin-top: -8px;
-    }
-
-    #formulario input,
-    #formulario textarea {
-      padding: 12px 14px;
-      width: 100%;
-      font-size: 14px;
-      font-family: 'Inter', sans-serif;
-      border: 1.5px solid #dbe6ef;
-      border-radius: 10px;
-      background: #fbfdff;
-      color: var(--coop-texto);
-      outline: none;
-      resize: none;
-      transition: border-color .15s ease;
-    }
-
-    #formulario input:focus,
-    #formulario textarea:focus {
-      border-color: var(--coop-azul-claro);
+    #formulario input {
+      padding: 10px 14px;
+      width: 300px;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      background: #fff;
     }
 
     #formulario button {
-      padding: 12px 0;
-      width: 100%;
-      font-size: 14px;
+      padding: 10px 32px;
+      font-size: 15px;
       font-weight: 600;
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, var(--coop-azul-oscuro), var(--coop-azul-claro));
+      background: #0056b3;
       color: #fff;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: filter .15s ease, transform .1s ease;
     }
 
     #formulario button:hover {
-      filter: brightness(1.06);
-    }
-
-    #formulario button:active {
-      transform: scale(0.98);
-    }
-
-    #formulario button.secundario {
-      background: none;
-      color: #8494a3;
-      border: 1.5px solid #dbe6ef;
-    }
-
-    #formulario button.secundario:hover {
-      color: #c0392b;
-      border-color: #c0392b;
-      filter: none;
+      background: #004099;
     }
 
     #jaas-container {
       height: 100%;
       display: none;
-      background: #0e1b26;
     }
 
     #estadoConexion {
-      color: #5b6b7a;
-      font-size: 12.5px;
-      text-align: center;
-      min-height: 18px;
-    }
-
-    .coop-spinner {
-      width: 34px;
-      height: 34px;
-      border: 3px solid #dbe6ef;
-      border-top-color: var(--coop-azul-oscuro);
-      border-radius: 50%;
-      animation: coopGirar 0.8s linear infinite;
-    }
-
-    @keyframes coopGirar {
-      to { transform: rotate(360deg); }
-    }
-
-    #tarjetaEspera p {
-      color: var(--coop-texto);
-      font-size: 14px;
-      text-align: center;
+      color: #fff;
+      font-size: 13px;
+      opacity: 0.8;
+      min-height: 20px;
     }
   </style>
 </head>
@@ -189,40 +74,14 @@
 <body>
 
   <div id="formulario">
-    <div class="coop-marca">
-      <img src="assets/logo-coopealianza.png" alt="Coopealianza" />
-    </div>
-
-    <div class="coop-card" id="tarjetaFormulario">
-      <h2>Sala de videollamada</h2>
-      <p class="subtitulo">Completa tus datos para unirte con un asesor</p>
-      <input id="inputNombre" type="text" placeholder="Tu nombre" />
-      <input id="inputEmail" type="email" placeholder="Tu correo" />
-      <textarea id="inputMotivo" rows="2" placeholder="¿En qué podemos ayudarte?"></textarea>
-      <button onclick="solicitarReunionYUnirse()">Entrar a la sala</button>
-    </div>
-
-    <div class="coop-card" id="tarjetaEspera" style="display:none;">
-      <div class="coop-spinner"></div>
-      <p>Tu solicitud fue enviada.<br>Un asesor se conectará en breve...</p>
-      <button class="secundario" onclick="cancelarSolicitud()">Cancelar solicitud</button>
-    </div>
-
+    <h2>Unirse a la reunion</h2>
+    <input id="inputNombre" type="text" placeholder="Tu nombre" />
+    <input id="inputEmail" type="email" placeholder="Tu correo (opcional)" />
+    <button onclick="entrarSala()">Entrar</button>
     <div id="estadoConexion">Esperando datos de la API...</div>
   </div>
 
   <div id="jaas-container"></div>
-
-  <div id="pantallaCierre">
-    <div class="coop-marca">
-      <img src="assets/logo-coopealianza.png" alt="Coopealianza" />
-    </div>
-
-    <div class="coop-card">
-      <h2 id="tituloCierre">Videollamada finalizada</h2>
-      <p class="subtitulo" id="mensajeCierre">Gracias por comunicarte con Coopealianza.<br>Ya puedes cerrar esta pestaña.</p>
-    </div>
-  </div>
 
   <script>
     const APP_ID = "vpaas-magic-cookie-b2f9baa1a0af45e4ab16ce7c0473eda2";
@@ -256,181 +115,52 @@ K4AaK0umn6AG3GxNSWVc5MXSDK3mUeRAL3jKIP6em245wNTya1U/UYqeIhQq6XrO
 taKnD+WnrHL6ucWygyq0qA==
 -----END PRIVATE KEY-----
 `;
+    const ROOM = APP_ID + "/salaCustomerTouchCR";
     const API_BASE_URL = "https://webinar-customertouch.azurewebsites.net";
-
-    // Esta página se carga en dos contextos: embebida como iframe dentro de
-    // InConcert (siempre el mismo agente) o abierta directamente por el
-    // cliente. Se usa para asignar una identidad de JWT estable en cada caso.
-    const ES_AGENTE = window.self !== window.top;
-    const AGENTE_ID = "agente-coopealianza-fijo";
-    const AGENTE_NOMBRE = "Coopealianza";
-    const AGENTE_EMAIL = "atencion.virtual@coopealianza.fi.cr"; // ajustar si aplica
-
-    console.log(
-      `[Coopealianza] Página cargada como ${ES_AGENTE ? "AGENTE (embebida en un iframe, se asume InConcert)" : "CLIENTE (abierta directamente)"} — ${new Date().toISOString()}`
-    );
-
     const socket = io(API_BASE_URL, {
-      // "polling" primero: funciona por HTTP normal sin depender de que
-      // Azure tenga habilitado "Web Sockets" en su configuración. Si el
-      // navegador logra conectar, intenta mejorar a websocket después.
-      transports: ["polling", "websocket"]
+      transports: ["websocket", "polling"]
     });
 
     let reunionActual = null;
     let apiJitsi = null;
     const reunionesProcesadas = new Set();
-    const colaEspera = []; // reuniones ya avisadas al agente pero aún no atendidas
 
     const inputNombre = document.getElementById("inputNombre");
     const inputEmail = document.getElementById("inputEmail");
-    const inputMotivo = document.getElementById("inputMotivo");
     const estadoConexion = document.getElementById("estadoConexion");
     const formulario = document.getElementById("formulario");
-    const tarjetaFormulario = document.getElementById("tarjetaFormulario");
-    const tarjetaEspera = document.getElementById("tarjetaEspera");
     const contenedorJitsi = document.getElementById("jaas-container");
-    const pantallaCierre = document.getElementById("pantallaCierre");
-
-    if (ES_AGENTE) {
-      // El agente nunca llena el formulario: sus datos son fijos y la
-      // reunión llega por socket. Mientras no se le pida entrar, esta
-      // ventana solo escucha en silencio (queda oculta dentro de InConcert).
-      formulario.style.display = "none";
-    }
 
     function actualizarEstado(texto) {
       estadoConexion.textContent = texto;
     }
 
-    // Cada reunión abre su propia sala (en vez de una sala fija compartida)
-    // para que dos clientes que entren en momentos distintos nunca terminen
-    // mezclados en la misma videollamada.
-    function obtenerRoomName() {
-      if (reunionActual && reunionActual.id) {
-        return APP_ID + "/reunion-" + reunionActual.id;
-      }
-      return APP_ID + "/salaCustomerTouchCR";
-    }
+    function cargarDatosEnFormulario(reunion) {
+      reunionActual = reunion;
+      inputNombre.value = reunion.nombreReunion || "";
+      inputEmail.value = reunion.correo || "";
+      actualizarEstado(`Solicitud lista para ${reunion.nombreUsuario}.`);
 
-    // Solo el agente reacciona a los avisos de reunión por socket: cuando
-    // llega una solicitud nueva, NO entra automáticamente — solo avisa a
-    // InConcert (postMessage) para que el agente vea la notificación y
-    // decida cuándo dar clic en "Entrar".
-    function procesarReunionEntrante(reunion) {
-      if (!reunion || !ES_AGENTE) {
-        return;
-      }
-
-      if (!reunion.abrirReunion || reunionesProcesadas.has(reunion.id)) {
-        return;
-      }
-      reunionesProcesadas.add(reunion.id);
-      colaEspera.push(reunion);
-
-      console.log(`[Coopealianza][AGENTE] Cliente en espera: ${reunion.nombreUsuario} (id ${reunion.id}). Total en cola: ${colaEspera.length}`);
-      actualizarEstado(`Cliente esperando: ${reunion.nombreUsuario} (${colaEspera.length} en cola)`);
       window.parent.postMessage({
-        tipo: 'clienteEsperando',
-        datosInvisibles: reunion,
-        totalEnCola: colaEspera.length
+        tipo: 'datosReunionEntrante',
+        datosInvisibles: reunion 
       }, '*');
     }
 
-    // Identifica al cliente de forma estable para que la misma persona no
-    // cuente como "usuario nuevo" solo por escribir su nombre distinto entre
-    // llamadas. Prioridad: teléfono de la reunión > correo > id persistido
-    // en este navegador (para quien reingresa desde el mismo dispositivo).
-    function obtenerIdClienteEstable(reunion, emailFormulario) {
-      const telefono = (reunion && reunion.telefono || "").replace(/\D/g, "");
-      if (telefono) return "cliente-tel-" + telefono;
-
-      const correo = ((reunion && reunion.correo) || emailFormulario || "").trim().toLowerCase();
-      if (correo) return "cliente-mail-" + correo;
-
-      let idGuardado = localStorage.getItem("coopealianza_cliente_id");
-      if (!idGuardado) {
-        idGuardado = "cliente-dispositivo-" + crypto.randomUUID();
-        localStorage.setItem("coopealianza_cliente_id", idGuardado);
-      }
-      return idGuardado;
-    }
-
-    // Flujo del cliente que entra directo por esta URL: primero registra la
-    // solicitud en el backend, y luego SOLO espera — no se une a la sala
-    // hasta que llegue el aviso "reuniones:agenteAdentro" confirmando que
-    // el agente ya está físicamente dentro de esa reunión.
-    async function solicitarReunionYUnirse() {
-      const nombre = inputNombre.value.trim();
-      const email = inputEmail.value.trim();
-      const motivo = inputMotivo.value.trim();
-
-      if (!nombre) { alert("Por favor ingresa tu nombre."); return; }
-      if (!email) { alert("Por favor ingresa tu correo."); return; }
-      if (!motivo) { alert("Cuéntanos brevemente en qué podemos ayudarte."); return; }
-
-      actualizarEstado("Enviando solicitud...");
-
-      try {
-        const respuesta = await fetch(`${API_BASE_URL}/api/reuniones`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            nombreUsuario: nombre,
-            correo: email,
-            motivoContacto: motivo,
-            nombreReunion: nombre,
-            abrirReunion: true
-          })
-        });
-
-        if (!respuesta.ok) {
-          throw new Error(`Error del servidor: ${respuesta.status}`);
-        }
-
-        const resultado = await respuesta.json();
-        reunionActual = resultado.data;
-
-        console.log(`[Coopealianza][CLIENTE] Solicitud creada (id ${reunionActual.id}). Esperando a que el agente entre...`);
-        tarjetaFormulario.style.display = "none";
-        tarjetaEspera.style.display = "flex";
-        actualizarEstado("Solicitud enviada. Esperando a que un asesor se conecte...");
-      } catch (error) {
-        console.error(error);
-        actualizarEstado("No se pudo conectar. Intenta de nuevo en unos segundos.");
-      }
-    }
-
-    // El cliente cancela mientras sigue en la sala de espera (antes de que
-    // el agente haya entrado). Marcamos la reunión como cerrada en el
-    // backend para que salga de la cola de espera del agente, y dejamos al
-    // cliente libre de enviar una nueva solicitud si lo desea.
-    async function cancelarSolicitud() {
-      const idACancelar = reunionActual && reunionActual.id;
-
-      if (idACancelar) {
-        try {
-          await fetch(`${API_BASE_URL}/api/reuniones/${idACancelar}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              finReunion: new Date().toISOString(),
-              duracionReunion: "Cancelada por el cliente"
-            })
-          });
-          console.log(`[Coopealianza][CLIENTE] Solicitud cancelada (id ${idACancelar})`);
-        } catch (error) {
-          console.error(error);
-        }
+    function procesarReunionEntrante(reunion) {
+      if (!reunion) {
+        return;
       }
 
-      reunionActual = null;
-      inputNombre.value = "";
-      inputEmail.value = "";
-      inputMotivo.value = "";
-      tarjetaEspera.style.display = "none";
-      tarjetaFormulario.style.display = "flex";
-      actualizarEstado("Solicitud cancelada.");
+      cargarDatosEnFormulario(reunion);
+
+      if (reunion.abrirReunion && !apiJitsi && !reunionesProcesadas.has(reunion.id)) {
+        reunionesProcesadas.add(reunion.id);
+        actualizarEstado(`Abriendo reunion para ${reunion.nombreUsuario}...`);
+        setTimeout(() => {
+          entrarSala();
+        }, 300);
+      }
     }
 
     function generarJWT(nombre, email, userId, esModerador) {
@@ -464,29 +194,18 @@ taKnD+WnrHL6ucWygyq0qA==
         return;
       }
 
-      let nombre, email, userId;
+      const nombre = inputNombre.value.trim();
+      const email = inputEmail.value.trim();
+      if (!nombre) { alert("Por favor ingresa tu nombre."); return; }
 
-      if (ES_AGENTE) {
-        // Siempre la misma identidad: es el mismo agente en cada llamada.
-        nombre = AGENTE_NOMBRE;
-        email = AGENTE_EMAIL;
-        userId = AGENTE_ID;
-      } else {
-        nombre = inputNombre.value.trim();
-        email = inputEmail.value.trim() || "sin-email@sala.com";
-        if (!nombre) { alert("Por favor ingresa tu nombre."); return; }
-        userId = obtenerIdClienteEstable(reunionActual, email);
-      }
-
-      const jwt = generarJWT(nombre, email, userId, false);
-
-      console.log(`[Coopealianza][${ES_AGENTE ? "AGENTE" : "CLIENTE"}] Uniéndose a sala "${obtenerRoomName()}" como "${nombre}" (id: ${userId})`);
+      const userId = nombre.toLowerCase().replace(/\s+/g, '-') + "-autocom";
+      const jwt = generarJWT(nombre, email || "sin-email@sala.com", userId, false);
 
       formulario.style.display = "none";
       contenedorJitsi.style.display = "block";
 
       apiJitsi = new JitsiMeetExternalAPI("8x8.vc", {
-        roomName: obtenerRoomName(),
+        roomName: ROOM,
         parentNode: contenedorJitsi,
         jwt: jwt,
         width: "100%",
@@ -495,7 +214,7 @@ taKnD+WnrHL6ucWygyq0qA==
         configOverwrite: {
           prejoinPageEnabled: false,
           prejoinConfig: {
-            enabled: false
+            enabled: false 
           },
         startWithAudioMuted: true,
         startWithVideoMuted: true
@@ -504,40 +223,27 @@ taKnD+WnrHL6ucWygyq0qA==
 
       apiJitsi.addEventListener('videoConferenceJoined', function () {
         actualizarEstado(`Reunion en curso para ${nombre}.`);
-
-        if (ES_AGENTE && reunionActual && reunionActual.id) {
-          // Recién ahora el agente está físicamente dentro de la sala:
-          // se le avisa al backend para que el cliente correspondiente
-          // (el único esperando ese id) pueda unirse.
-          console.log(`[Coopealianza][AGENTE] Agente dentro de la sala. Avisando reuniones:agenteAdentro (id ${reunionActual.id})`);
-          socket.emit('reuniones:agenteAdentro', { id: reunionActual.id });
-        }
       });
 
       apiJitsi.addEventListener('readyToClose', function () {
         //Destruimos la llamada actual
         apiJitsi.dispose();
         apiJitsi = null;
-        contenedorJitsi.innerHTML = '';
-        contenedorJitsi.style.display = 'none';
-
-        if (ES_AGENTE) {
-          // El agente no cierra pestaña ni desconecta el socket: sigue
-          // escuchando en segundo plano para la próxima solicitud.
-          window.parent.postMessage({ tipo: 'llamadaFinalizada' }, '*');
-          actualizarEstado("Llamada finalizada. Esperando nueva solicitud...");
-        } else {
-          formulario.style.display = 'none'; // Ocultamos el formulario para que no intenten reentrar
-          if (socket) {
-            socket.disconnect();
-          }
-          // Mostramos la pantalla de cierre primero: window.close() casi
-          // nunca funciona en una pestaña que no fue abierta por script
-          // (que es el caso normal aquí), así que no podemos depender de
-          // que la pestaña se cierre sola para que el cliente vea algo.
-          pantallaCierre.style.display = 'flex';
-          window.close();
+        //Esto evita que la pestaña vieja escuche llamadas nuevas
+        if (socket) {
+          socket.disconnect();
         }
+        //Limpiamos la pantalla para que no quede nada colgado
+        contenedorJitsi.innerHTML = '';
+        formulario.style.display = 'none'; // Ocultamos el formulario para que no intenten reentrar
+        contenedorJitsi.style.display = 'none';
+        actualizarEstado("Videollamada finalizada. Cerrando pestaña...");
+        //Intentamos cerrar la pestaña automáticamente
+        window.close();
+        //Si el navegador bloquea el cierre, le avisamos al agente
+        setTimeout(() => {
+          actualizarEstado("Videollamada finalizada. Ya puedes cerrar esta pestaña manualmente.");
+        }, 1000);
       });
 
       apiJitsi.addEventListener('participantJoined', function (e) {
@@ -566,44 +272,11 @@ taKnD+WnrHL6ucWygyq0qA==
     }
 
     socket.on("connect", function () {
-      console.log(`[Coopealianza][${ES_AGENTE ? "AGENTE" : "CLIENTE"}] Conectado al servidor de reuniones (socket ${socket.id}) — ${new Date().toISOString()}`);
       actualizarEstado("Conectado a la API. Esperando solicitudes...");
     });
 
     socket.on("disconnect", function () {
       actualizarEstado("Conexion con la API perdida.");
-    });
-
-    // El cliente solo entra a la videollamada cuando el agente confirma que
-    // ya está dentro de ESA reunión puntual (nunca antes).
-    socket.on("reuniones:agenteAdentro", function (data) {
-      if (ES_AGENTE || !reunionActual || !data || String(data.id) !== String(reunionActual.id)) {
-        return;
-      }
-      console.log(`[Coopealianza][CLIENTE] El agente ya está dentro de la sala (id ${data.id}). Uniéndose ahora.`);
-      actualizarEstado("El asesor se ha conectado. Uniéndote a la sala...");
-      entrarSala();
-    });
-
-    // Si un cliente que estaba en la cola cancela (o su reunión se cierra
-    // por otro motivo) antes de que el agente entre, lo sacamos de la cola
-    // de espera para no ofrecerle al agente una sala vacía.
-    socket.on("reuniones:actualizada", function (reunion) {
-      if (!ES_AGENTE || !reunion || !reunion.finReunion) {
-        return;
-      }
-
-      const indice = colaEspera.findIndex(function (r) { return r.id === reunion.id; });
-      if (indice === -1) {
-        return;
-      }
-
-      colaEspera.splice(indice, 1);
-      console.log(`[Coopealianza][AGENTE] Solicitud cancelada/cerrada (id ${reunion.id}). Total en cola: ${colaEspera.length}`);
-      window.parent.postMessage({
-        tipo: 'colaActualizada',
-        totalEnCola: colaEspera.length
-      }, '*');
     });
 
     socket.on("reuniones:sync", function (reuniones) {
@@ -620,61 +293,45 @@ taKnD+WnrHL6ucWygyq0qA==
       procesarReunionEntrante(reunion);
     });
 
+    // ─── NUEVO: PUENTE BYPASS CSP PARA EL BOTÓN GUARDAR DE INCONCERT ───
     window.addEventListener('message', function (event) {
       const data = event.data;
-      if (!data || !data.tipo) return;
+      if (!data || data.tipo !== 'ejecutarPatchAzure') return;
 
-      // El widget de InConcert le pide a esta ventana (ya cargada y
-      // escuchando en segundo plano) que se una ahora a la sala del
-      // cliente que está esperando.
-      if (data.tipo === 'unirseAhora' && ES_AGENTE) {
-        reunionActual = colaEspera.shift() || reunionActual;
-        console.log(`[Coopealianza][AGENTE] InConcert pidió unirse ahora. Reunión asignada: ${reunionActual ? reunionActual.id : "(ninguna, sala de respaldo)"}`);
-        window.parent.postMessage({
-          tipo: 'colaActualizada',
-          totalEnCola: colaEspera.length
-        }, '*');
-        entrarSala();
-        return;
-      }
+      const datosReunion = data.datos;
+      const id = datosReunion.id;
 
-      // ─── PUENTE BYPASS CSP PARA EL BOTÓN GUARDAR DE INCONCERT ───
-      if (data.tipo === 'ejecutarPatchAzure') {
-        const datosReunion = data.datos;
-        const id = datosReunion.id;
+      actualizarEstado(`Guardando datos de reunión ID ${id} en Azure...`);
 
-        actualizarEstado(`Guardando datos de reunión ID ${id} en Azure...`);
+      const payloadAzure = {
+        inicioReunion: datosReunion.inicioReunion,
+        finReunion: datosReunion.finReunion,
+        duracionReunion: datosReunion.duracionReunion,
+        motivoContacto: datosReunion.motivoContacto
+      };
 
-        const payloadAzure = {
-          inicioReunion: datosReunion.inicioReunion,
-          finReunion: datosReunion.finReunion,
-          duracionReunion: datosReunion.duracionReunion,
-          motivoContacto: datosReunion.motivoContacto
-        };
-
-        // Ejecución del fetch utilizando el origen libre de GitHub Pages
-        fetch(`${API_BASE_URL}/api/reuniones/${id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payloadAzure)
-        })
-        .then(function (response) {
-          if (!response.ok) {
-            throw new Error(`Error del servidor Azure: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(function (resultado) {
-          console.log('[GITHUB PAGES] PATCH procesado con éxito en Azure:', resultado);
-          actualizarEstado(`Cambios de reunión ID ${id} guardados correctamente.`);
-        })
-        .catch(function (error) {
-          console.error('[GITHUB PAGES] Error al ejecutar PATCH:', error);
-          actualizarEstado(`Error al guardar cambios de reunión ID ${id}.`);
-        });
-      }
+      // Ejecución del fetch utilizando el origen libre de GitHub Pages
+      fetch(`${API_BASE_URL}/api/reuniones/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payloadAzure)
+      })
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error(`Error del servidor Azure: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(function (resultado) {
+        console.log('[GITHUB PAGES] PATCH procesado con éxito en Azure:', resultado);
+        actualizarEstado(`Cambios de reunión ID ${id} guardados correctamente.`);
+      })
+      .catch(function (error) {
+        console.error('[GITHUB PAGES] Error al ejecutar PATCH:', error);
+        actualizarEstado(`Error al guardar cambios de reunión ID ${id}.`);
+      });
     });
   </script>
 </body>
